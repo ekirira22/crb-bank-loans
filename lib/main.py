@@ -1,4 +1,4 @@
-# lib/cli.py
+# lib/main.py
 
 from helpers import (
     exit_program,
