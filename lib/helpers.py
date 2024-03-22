@@ -1,14 +1,18 @@
 # lib/helpers.py
+#! /usr/bin/env python3
+from models.loans import *
+
 import re
 import random
-
-def helper_1():
-    print("Performing useful function#1.")
-
 
 def exit_program():
     print("Goodbye!")
     exit()
+
+def create_bank(name, branch):
+    new_bank = Bank.create(name, branch)
+    return new_bank
+
 
 # Regex pattern for validating email -> Returns False if pattern is not fulfilled 
 def validate_email(email):

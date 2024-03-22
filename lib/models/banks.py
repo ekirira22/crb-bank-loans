@@ -8,9 +8,6 @@ class Bank:
         self.id = id
         self.name = name
         self.branch = branch
-        print(f"Added {self.name} bank | {self.branch} branch successfully")
-
-
     # Returns details of instance
     def __repr__(self) -> str:
         return f"<Bank {self.id}: {self.name} | {self.branch}>"
@@ -130,6 +127,9 @@ class Bank:
 
         # Save this bank instance in a dictionary with id as the key
         type(self).all[self.id] = self
+
+        # print success message
+        print(f"Added {self.name} bank | {self.branch} branch successfully")
 
     def update(self):
         # Update the table row corresponding to the current Bank instance.
