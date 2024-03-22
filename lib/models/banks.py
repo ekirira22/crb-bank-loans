@@ -1,13 +1,13 @@
-from __init__ import CURSOR, CONN
-import ipdb
+#! /usr/bin/env python3
+from models.initialize import CURSOR, CONN
 class Bank:
 
     all = {}
 
     def __init__(self, name, branch, id=None) -> None:
+        self.id = id
         self.name = name
         self.branch = branch
-        self.id = id
         print(f"Added {self.name} bank | {self.branch} branch successfully")
 
 
@@ -48,7 +48,7 @@ class Bank:
         # Create a new table to persist the attributes of Bank instances
         sql = """
             CREATE TABLE IF NOT EXISTS banks (
-                id INT PRIMARY KEY,
+                id INTEGER PRIMARY KEY,
                 name TEXT,
                 branch TEXT
             )
@@ -70,8 +70,47 @@ class Bank:
         new_bank = cls(name, branch)
         new_bank.save()
         return new_bank
-
     
+    @classmethod
+    def instance_from_db(cls, result):
+        # first check if it exists in all dict
+        bank = cls.all.get(result[0])
+        if bank:
+            # Reset values incase of any alteration
+            bank.name = result[1]
+            bank.branch = result[2]
+        else:
+            # not in dictionary but in db
+            bank = cls(result[1], result[2])
+            bank.id = result[0]
+            cls.all[bank.id] = bank
+        return bank
+    
+    @classmethod
+    def get_all(cls):
+        # Return a list containing a Bank object per row in the table
+        sql = """
+            SELECT * FROM banks
+        """
+        results = CURSOR.execute(sql).fetchall()
+        return [cls.instance_from_db(result) for result in results]
+    
+    @classmethod
+    def find_by_id(cls, id):
+        sql = """
+            SELECT * FROM banks WHERE id = ?
+        """
+        result = CURSOR.execute(sql, (id,)).fetchone()
+        return cls.instance_from_db(result) if result else None
+    
+    @classmethod
+    def find_by_name(cls, name):
+        sql = """
+            SELECT * FROM banks WHERE name = ?
+        """
+        result = CURSOR.execute(sql, (name,)).fetchone()
+        return cls.instance_from_db(result) if result else None
+
     """
         ORM CRUD INSTANCE METHODS
     """
@@ -99,8 +138,16 @@ class Bank:
         """
         CURSOR.execute(sql, (self.name, self.branch, self.id))
         CONN.commit()
+        print("Bank successfuly updated")
 
     def delete(self):
+        from models.loans import Loan
+        # Deletes by Association - delete all banks with loans associated to this bank instance
+        # before deleting the bank itself
+
+        loans_delete_ids = [loan.id for loan in Loan.get_all() if loan.bank_id is self.id]
+        [Loan.delete_by_id(id) for id in loans_delete_ids]
+       
         # Delete the table row corresponding to the current Bank instance
         sql = """
             DELETE FROM banks WHERE id = ?
@@ -108,14 +155,28 @@ class Bank:
 
         CURSOR.execute(sql, (self.id,))
         CONN.commit()
+        print("Bank and associated loans successfuly deleted")
 
+        # Delete from all and set id to None
+        del type(self).all[self.id]
+        self.id = None
+
+    """
+        ORM ASSOCIATION METHODS
+    """
+    # Returns a list of customers with a loan with the current bank
+    def customers(self):
+        from models.loans import Loan
+        from models.customers import Customer
+
+        customer_ids =  [val.customer_id for key, val in Loan.all.items() if val.bank_id is self.id]
+        return [Customer.find_by_id(customer) for customer in customer_ids]
     
-Bank.drop_table()
-Bank.create_table()
+    def loans(self):
+        from models.loans import Loan        
+        loans_ids = [val.id for key, val in Loan.all.items() if val.bank_id is self.id]
+        return [Loan.find_by_id(loan) for loan in loans_ids]
 
-equity = Bank("Equity Bank", "Nyeri")
-coop = Bank.create("Coop", "Nairobi")
-ipdb.set_trace()
-
+        
 
 

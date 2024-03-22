@@ -1,5 +1,5 @@
 # lib/main.py
-
+from models.initialize import CURSOR, CONN
 from helpers import (
     exit_program,
     helper_1
