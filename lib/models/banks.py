@@ -170,7 +170,7 @@ class Bank:
         from models.customers import Customer
 
         customer_ids =  [val.customer_id for key, val in Loan.all.items() if val.bank_id is self.id]
-        return [Customer.find_by_id(customer) for customer in customer_ids]
+        return list(set([Customer.find_by_id(customer) for customer in customer_ids])) if customer_ids else print("No Customers with Loan")
     
     def loans(self):
         from models.loans import Loan        

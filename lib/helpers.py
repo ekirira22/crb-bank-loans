@@ -1,5 +1,7 @@
 # lib/helpers.py
 import re
+import random
+
 def helper_1():
     print("Performing useful function#1.")
 
@@ -12,3 +14,6 @@ def exit_program():
 def validate_email(email):
     pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.match(pattern, email) is not None
+
+def limit_bonus():
+    return random.randint(5000, 20000)

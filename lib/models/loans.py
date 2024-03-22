@@ -38,7 +38,7 @@ class Loan:
     
     @loan_amount.setter
     def loan_amount(self, loan_amount):
-        if isinstance(loan_amount, int or float) and loan_amount> 0:
+        if isinstance(loan_amount, int or float):
             self._loan_amount = loan_amount
             return
         raise TypeError("Loan amount has to be a number and greater than zero")
@@ -75,11 +75,20 @@ class Loan:
     @classmethod
     def create(cls, loan_type, loan_amount, bank, customer):
         # Check if bank and customers and instances
-        if not isinstance(bank, Bank) and not isinstance(customer, Customer):
-            raise TypeError("bank and customer has to be of class Bank and Customer respectively")
-        new_loan = cls(loan_type, loan_amount, bank.id, customer.id)
-        new_loan.save()
-        return new_loan
+        if isinstance(bank, Bank) and isinstance(customer, Customer):
+            # check if the customer has existed their loan limit
+            if loan_amount < customer.loan_limit:
+                new_loan = cls(loan_type, loan_amount, bank.id, customer.id)
+                new_loan.save()
+                # update customers loan limit
+                customer.loan_limit -= loan_amount
+                customer.update()
+
+                return new_loan
+            else:
+                print(f"Loan limit exceeded. {customer.loan_total()} \n KES {loan_amount} borrowed while limit is KES {customer.loan_limit}.\n Pay to increase Loan Limit")
+                return
+        raise TypeError("bank and customer arguments have to be of class Bank and Customer respectively")
     
     @classmethod
     def instance_from_db(cls, result):

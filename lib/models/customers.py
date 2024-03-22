@@ -1,20 +1,22 @@
 #! /usr/bin/env python3
 from models.initialize import CURSOR, CONN
 from helpers import validate_email
+from helpers import limit_bonus
 
 class Customer:
 
     all = {}
 
-    def __init__(self, first_name, last_name, email, id=None) -> None:
+    def __init__(self, first_name, last_name, email, loan_limit, id=None) -> None:
         self.id = id
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
+        self.loan_limit = loan_limit
 
     # Returns details of instance
     def __repr__(self) -> str:
-        return f"<Customer {self.id}: {self.first_name} | {self.last_name} | {self.email}>"
+        return f"<Customer {self.id}: {self.first_name} | {self.last_name} | {self.email} | {self.loan_limit}>"
     
     """
         PROPERTY METHODS
@@ -63,7 +65,8 @@ class Customer:
                 id INTEGER PRIMARY KEY,
                 first_name TEXT,
                 last_name TEXT,
-                email TEXT
+                email TEXT,
+                loan_limit INTEGER
             )
         """
         CURSOR.execute(sql)
@@ -79,8 +82,8 @@ class Customer:
         CONN.commit()
 
     @classmethod
-    def create(cls, first_name, last_name, email):
-        new_Customer = cls(first_name, last_name, email)
+    def create(cls, first_name, last_name, email, loan_limit):
+        new_Customer = cls(first_name, last_name, email, loan_limit)
         new_Customer.save()
         return new_Customer
     
@@ -93,9 +96,10 @@ class Customer:
             customer.first_name = result[1]
             customer.last_name = result[2]
             customer.email = result[3]
+            customer.loan_limit = result[4]
         else:
             # not in dictionary but in db
-            customer = cls(result[1], result[2], result[3])
+            customer = cls(result[1], result[2], result[3], result[4])
             customer.id = result[0]
             cls.all[customer.id] = customer
         return customer
@@ -127,9 +131,9 @@ class Customer:
         # Update object id attribute using the primary key value of new row.
 
         sql = """
-            INSERT INTO customers (first_name, last_name, email) VALUES (?, ?, ?)
+            INSERT INTO customers (first_name, last_name, email, loan_limit) VALUES (?, ?, ?, ?)
         """
-        CURSOR.execute(sql, (self.first_name, self.last_name, self.email))
+        CURSOR.execute(sql, (self.first_name, self.last_name, self.email, self.loan_limit))
         CONN.commit()
 
         # Now store the ID
@@ -145,11 +149,11 @@ class Customer:
     def update(self):
         # Update the table row corresponding to the current Customer instance.
         sql = """
-            UPDATE customers SET first_name = ?, last_name = ?, email = ? WHERE id = ?
+            UPDATE customers SET first_name = ?, last_name = ?, email = ?, loan_limit = ? WHERE id = ?
         """
-        CURSOR.execute(sql, (self.first_name, self.last_name, self.email, self.id))
+        CURSOR.execute(sql, (self.first_name, self.last_name, self.email, self.loan_limit, self.id))
         CONN.commit()
-        print(f"Customer details successfuly updated >>\n {self.first_name} | {self.last_name} | {self.email} ")
+        print(f"Customer details successfuly updated >>\n {self.first_name} | {self.last_name} | {self.email} | {self.loan_limit} ")
 
 
     def delete(self):
@@ -182,13 +186,18 @@ class Customer:
         from models.banks import Bank
 
         bank_ids =  [val.bank_id for key, val in Loan.all.items() if val.customer_id is self.id]
-        return [Bank.find_by_id(bank_id) for bank_id in bank_ids] if bank_ids else print("No Bank with Loan")
+        return list(set([Bank.find_by_id(bank_id) for bank_id in bank_ids])) if bank_ids else print("No Bank with Loan")
     
     # Returns a list of loans of the user's instance
     def loans(self):
         from models.loans import Loan        
         loans_ids = [val.id for key, val in Loan.all.items() if val.customer_id is self.id]
         return [Loan.find_by_id(loan_id) for loan_id in loans_ids] if loans_ids else print("No Existing Loans")
+    
+    # Returns the total loan of a user
+    def loan_total(self):
+        # Returns total of loan
+        return f"{self.first_name}'s total Loan is: KES {sum([loan.loan_amount for loan in self.loans() if loan.customer_id is self.id])}"
     
     # Returns the loan total a user has in a specific bank
     def bank_loan_total(self, bank):
@@ -198,6 +207,33 @@ class Customer:
             # Returns total of loan
             return f"{self.first_name}'s outstanding Loan balance in {bank.name} is: KES {sum([loan.loan_amount for loan in self.loans() if loan.customer_id is self.id and loan.bank_id is bank.id])}"
         raise TypeError("Argument passed must an instance of Bank class")
+    
+    # Customer Pays Loan Function
+    def pay_loan(self, loan_type, bank, amount):
+        from models.loans import Loan
+        from models.loans import Bank
+        if not isinstance(bank, Bank):
+            raise TypeError("bank argument should be of class Bank")
+        
+        current_loan = [loan for loan in self.loans() if loan.bank_id is bank.id and loan.loan_type == loan_type]
+
+        # update loan instance and database
+        current_loan[0].loan_amount -= amount
+        current_loan[0].update()
+
+        # if loan is zero. Delete loan instance | Give user an extra bonus limit
+        if current_loan[0].loan_amount <= 0:
+            print(f"Thank you for fully paying you loan") if current_loan[0].loan_amount >= 0 else print(f"Thank you for fully paying you loan. \nExcess of KES {-current_loan[0].loan_amount} has been credited to your account")
+            Loan.delete(current_loan[0])
+
+        # increase customers instance and database
+        self.loan_limit += amount + limit_bonus()
+        self.update()
+
+    def balance_books(self):
+        pass
+
+
 
     
 
