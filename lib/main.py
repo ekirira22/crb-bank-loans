@@ -1,5 +1,8 @@
 # lib/main.py
+#! /usr/bin/env python3
 from models.initialize import CURSOR, CONN
+from models.loans import *
+
 from helpers import (
     exit_program,
     helper_1

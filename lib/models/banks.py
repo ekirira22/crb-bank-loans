@@ -176,6 +176,21 @@ class Bank:
         from models.loans import Loan        
         loans_ids = [val.id for key, val in Loan.all.items() if val.bank_id is self.id]
         return [Loan.find_by_id(loan) for loan in loans_ids]
+    
+    def offer_loan(self, loan_type, loan_amount, customer):
+        from models.loans import Loan
+        from models.customers import Customer
+        
+        if not isinstance(customer, Customer):
+            raise TypeError("customer argument must be of type Customer")
+        Loan.create(loan_type, loan_amount, self, customer)
+    
+    def pay_loan(self, loan_type, customer, amount):
+        from models.customers import Customer
+        if not isinstance(customer, Customer):
+            raise TypeError("customer argument has to be of type Customer")
+        Customer.pay_loan(customer, loan_type, self, amount)
+
 
         
 

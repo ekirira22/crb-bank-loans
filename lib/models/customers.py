@@ -230,8 +230,10 @@ class Customer:
         self.loan_limit += amount + limit_bonus()
         self.update()
 
-    def balance_books(self):
-        pass
+    def all_loans_details(self):
+        from models.banks import Bank
+        for loan in self.loans():
+            print(f"Bank: {Bank.find_by_id(loan.bank_id).name} | Loan Type: {loan.loan_type} | Loan Amount: {loan.loan_amount}")
 
 
 
