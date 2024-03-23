@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 from models.initialize import CURSOR, CONN
-from helpers import validate_email
-from helpers import limit_bonus
+import random
+import re
 
 class Customer:
 
@@ -30,7 +30,7 @@ class Customer:
         if isinstance(first_name, str) and len(first_name) > 1:
             self._first_name = first_name
             return
-        raise TypeError("Customer first name has to be a valid name")
+        raise TypeError("Customer first name has to be a string and cannot be empty")
     
     @property
     def last_name(self):
@@ -41,7 +41,7 @@ class Customer:
         if isinstance(last_name, str) and len(last_name) > 1:
             self._last_name = last_name
             return
-        raise TypeError("Customer last name has to be a valid name")
+        raise TypeError("Customer last name has to be a string and cannot be empty")
     
     @property
     def email(self):
@@ -53,6 +53,16 @@ class Customer:
             self._email = email
             return
         raise TypeError("Customer email has to be a valid email")
+    
+    @property
+    def loan_limit(self):
+        return self._loan_limit
+
+    @loan_limit.setter
+    def loan_limit(self, loan_limit):
+        if not isinstance(loan_limit, int) and loan_limit > 0:
+            raise TypeError("Loan Limit has to be a number and cannot be less than zero")
+        self._loan_limit = loan_limit
     
     """
         ORM CLASS METHODS
@@ -119,6 +129,14 @@ class Customer:
         """
         result = CURSOR.execute(sql, (id,)).fetchone()
         return cls.instance_from_db(result) if result else None
+    
+    @classmethod
+    def find_by_name(cls, name):
+        sql = """
+            SELECT * FROM customers WHERE first_name = ?
+        """
+        result = CURSOR.execute(sql, (name,)).fetchone()
+        return cls.instance_from_db(result) if result else None
 
     
     """
@@ -140,10 +158,6 @@ class Customer:
 
         # Save this Customer instance in a dictionary with id as the key
         type(self).all[self.id] = self
-        # Print out success message
-
-        print(f"Added {self.first_name} {self.last_name} successfully")
-        
 
     def update(self):
         # Update the table row corresponding to the current Customer instance.
@@ -196,7 +210,7 @@ class Customer:
     # Returns the total loan of a user
     def loan_total(self):
         # Returns total of loan
-        return f"{self.first_name}'s total Loan is: KES {sum([loan.loan_amount for loan in self.loans() if loan.customer_id is self.id])}"
+        return sum([loan.loan_amount for loan in self.loans() if loan.customer_id is self.id])
     
     # Returns the loan total a user has in a specific bank
     def bank_loan_total(self, bank):
@@ -235,7 +249,14 @@ class Customer:
             print(f"Bank: {Bank.find_by_id(loan.bank_id).name} | Loan Type: {loan.loan_type} | Loan Amount: {loan.loan_amount}")
 
 
+# Regex pattern for validating email -> Returns False if pattern is not fulfilled 
+def validate_email(email):
+    pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    return re.match(pattern, email) is not None
 
+# get random loan limit bonus
+def limit_bonus():
+    return random.randint(5000, 20000)
     
 
 

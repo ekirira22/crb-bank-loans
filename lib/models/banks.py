@@ -134,7 +134,6 @@ class Bank:
         """
         CURSOR.execute(sql, (self.name, self.branch, self.id))
         CONN.commit()
-        print("Bank successfuly updated")
 
     def delete(self):
         from models.loans import Loan
@@ -151,7 +150,6 @@ class Bank:
 
         CURSOR.execute(sql, (self.id,))
         CONN.commit()
-        print("Bank and associated loans successfuly deleted")
 
         # Delete from all and set id to None
         del type(self).all[self.id]
@@ -166,12 +164,12 @@ class Bank:
         from models.customers import Customer
 
         customer_ids =  [val.customer_id for key, val in Loan.all.items() if val.bank_id is self.id]
-        return list(set([Customer.find_by_id(customer) for customer in customer_ids])) if customer_ids else print("No Customers with Loan")
+        return [Customer.find_by_id(customer_id) for customer_id in customer_ids] if customer_ids else print("No customers with Loans")
     
     def loans(self):
         from models.loans import Loan        
         loans_ids = [val.id for key, val in Loan.all.items() if val.bank_id is self.id]
-        return [Loan.find_by_id(loan) for loan in loans_ids]
+        return [Loan.find_by_id(loan_id) for loan_id in loans_ids] if loans_ids else print("No disbursed Loans available")
     
     def offer_loan(self, loan_type, loan_amount, customer):
         from models.loans import Loan
