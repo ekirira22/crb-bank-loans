@@ -21,10 +21,10 @@ class Bank:
     
     @name.setter
     def name(self, name):
-        if isinstance(name, str) and len(name) > 1:
+        if isinstance(name, str) and len(name) > 0:
             self._name = name
             return
-        raise TypeError("Bank name has to be a valid name")
+        raise TypeError("Bank name has to be a string and length greater than 0")
     
     @property
     def branch(self):
@@ -32,10 +32,10 @@ class Bank:
     
     @branch.setter
     def branch(self, branch):
-        if isinstance(branch, str) and len(branch) > 1:
+        if isinstance(branch, str) and len(branch) > 0:
             self._branch = branch
             return
-        raise TypeError("Branch name has to be a valid name")
+        raise TypeError("Branch name has to be a string and length greater than 0")
     
     """
         ORM CLASS METHODS
@@ -71,8 +71,7 @@ class Bank:
     @classmethod
     def instance_from_db(cls, result):
         # first check if it exists in all dict
-        bank = cls.all.get(result[0])
-        if bank:
+        if bank := cls.all.get(result[0]):
             # Reset values incase of any alteration
             bank.name = result[1]
             bank.branch = result[2]
@@ -127,9 +126,6 @@ class Bank:
 
         # Save this bank instance in a dictionary with id as the key
         type(self).all[self.id] = self
-
-        # print success message
-        print(f"Added {self.name} bank | {self.branch} branch successfully")
 
     def update(self):
         # Update the table row corresponding to the current Bank instance.

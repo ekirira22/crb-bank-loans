@@ -31,4 +31,4 @@ larry_loan_kcb_car = Loan.create("Car-Loan", 15000, kcb, larry)
 
 
 
-ipdb.set_trace()
+# ipdb.set_trace()

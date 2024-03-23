@@ -90,8 +90,7 @@ class Customer:
     @classmethod
     def instance_from_db(cls, result):
         # first check if it exists in all dict
-        customer = cls.all.get(result[0])
-        if customer:
+        if customer := cls.all.get(result[0]):
             # Reset values incase of any alteration
             customer.first_name = result[1]
             customer.last_name = result[2]
