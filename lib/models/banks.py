@@ -155,21 +155,6 @@ class Bank:
         del type(self).all[self.id]
         self.id = None
 
-    """
-        ORM ASSOCIATION METHODS
-    """
-    def offer_loan(self, loan_type, loan_amount, customer):
-        from models.loans import Loan
-        from models.customers import Customer
-        pass
-        
-    
-    def pay_loan(self, loan_type, customer, amount):
-        from models.customers import Customer
-        if not isinstance(customer, Customer):
-            raise TypeError("customer argument has to be of type Customer")
-        Customer.pay_loan(customer, loan_type, self, amount)
-
 
         
 

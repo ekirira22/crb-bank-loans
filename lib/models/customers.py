@@ -18,13 +18,15 @@ class Customer:
     def __repr__(self) -> str:
         return f"<Customer {self.id}: {self.first_name} | {self.last_name} | {self.email} | {self.loan_limit}>"
     
+
     """
         PROPERTY METHODS
     """
+    
+
     @property
     def first_name(self):
         return self._first_name
-    
     @first_name.setter
     def first_name(self, first_name):
         if isinstance(first_name, str) and len(first_name) > 0:
@@ -32,10 +34,10 @@ class Customer:
             return
         raise TypeError("Customer first name has to be a string and cannot be empty")
     
+
     @property
     def last_name(self):
         return self._last_name
-    
     @last_name.setter
     def last_name(self, last_name):
         if isinstance(last_name, str) and len(last_name) > 0:
@@ -43,10 +45,10 @@ class Customer:
             return
         raise TypeError("Customer last name has to be a string and cannot be empty")
     
+
     @property
     def email(self):
         return self._email
-    
     @email.setter
     def email(self, email):
         if isinstance(email, str) and validate_email(email):
@@ -54,19 +56,22 @@ class Customer:
             return
         raise TypeError("Customer email has to be a valid email")
     
+
     @property
     def loan_limit(self):
         return self._loan_limit
-
     @loan_limit.setter
     def loan_limit(self, loan_limit):
         if not isinstance(loan_limit, int) and loan_limit > 0:
             raise TypeError("Loan Limit has to be a number and cannot be less than zero")
         self._loan_limit = loan_limit
-    
+
+
     """
         ORM CLASS METHODS
     """
+
+
     @classmethod
     def create_table(cls) -> None:
         # Create a new table to persist the attributes of Customer instances
@@ -82,6 +87,7 @@ class Customer:
         CURSOR.execute(sql)
         CONN.commit()
 
+
     @classmethod
     def drop_table(cls) -> None:
         # Drop the table to persist the attributes of Customer instances
@@ -91,12 +97,14 @@ class Customer:
         CURSOR.execute(sql)
         CONN.commit()
 
+
     @classmethod
     def create(cls, first_name, last_name, email, loan_limit):
         new_Customer = cls(first_name, last_name, email, loan_limit)
         new_Customer.save()
         return new_Customer
     
+
     @classmethod
     def instance_from_db(cls, result):
         # first check if it exists in all dict
@@ -113,6 +121,7 @@ class Customer:
             cls.all[customer.id] = customer
         return customer
     
+
     @classmethod
     def get_all(cls):
         # Return a list containing a Customer object per row in the table
@@ -122,6 +131,7 @@ class Customer:
         results = CURSOR.execute(sql).fetchall()
         return [cls.instance_from_db(result) for result in results]
     
+
     @classmethod
     def find_by_id(cls, id):
         sql = """
@@ -130,6 +140,7 @@ class Customer:
         result = CURSOR.execute(sql, (id,)).fetchone()
         return cls.instance_from_db(result) if result else None
     
+
     @classmethod
     def find_by_name(cls, name):
         sql = """
@@ -142,6 +153,7 @@ class Customer:
     """
         ORM CRUD INSTANCE METHODS
     """
+
 
     def save(self) -> None:
         # Insert a new row with the first_name, last_name aned email values of the current Customer instance. 
@@ -158,6 +170,7 @@ class Customer:
 
         # Save this Customer instance in a dictionary with id as the key
         type(self).all[self.id] = self
+
 
     def update(self):
         # Update the table row corresponding to the current Customer instance.
@@ -190,9 +203,11 @@ class Customer:
         del type(self).all[self.id]
         self.id = None
 
+        
     """
         ORM ASSOCIATION METHODS
     """
+
 
     # Returns a list of banks a customer has borrowed a loan from
     def banks(self):
@@ -200,6 +215,7 @@ class Customer:
         from models.loans import Loan
         bank_ids =  [val.bank_id for val in Loan.get_all() if val.customer_id is self.id]
         return set([Bank.find_by_id(bank_id) for bank_id in bank_ids]) if bank_ids else print("No Bank with Loan")
+
 
     # Returns a list of loans of the user's instance
     def loans(self):
@@ -229,7 +245,7 @@ class Customer:
         from models.loans import Loan
         from models.loans import Bank
         if not isinstance(bank, Bank):
-            raise TypeError("bank argument should be of class Bank")
+            raise TypeError("Bank argument should be of class Bank")
         
         current_loan = [loan for loan in self.loans() if loan.bank_id is bank.id and loan.loan_type == loan_type]
 
@@ -247,10 +263,17 @@ class Customer:
         self.update()
 
 
+    # Display all Loan Details
     def all_loans_details(self):
         from models.banks import Bank
-        for loan in self.loans():
-            print(f"Bank: {Bank.find_by_id(loan.bank_id).name} | Loan Type: {loan.loan_type} | Loan Amount: {loan.loan_amount}")
+        all_loans = self.loans()
+        if all_loans:
+            for loan in self.loans():
+                print(f"Bank: {Bank.find_by_id(loan.bank_id).name} | Loan Type: {loan.loan_type} | Loan Amount: {loan.loan_amount}")
+        else:
+            print("Customer has no outstanding Loans")
+
+
 
 
 # Regex pattern for validating email -> Returns False if pattern is not fulfilled 

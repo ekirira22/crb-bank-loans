@@ -46,7 +46,7 @@ def main():
         elif choice == "18":
             delete_customer()
         elif choice == "19":
-            take_loan()
+            register_loan()
         elif choice == "20":
             settle_loan()
         else:

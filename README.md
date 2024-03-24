@@ -49,5 +49,52 @@ The relationship between the banks and customers is a many-many relationship. We
 | bank_id | INT - FK|
 | customer_id | INT - FK|
 
-## Methodology
+## User Stories
 
+CS. Njuguna Ndegwa wants to see how many Kenyans have Loans and in which banks. 
+The following are the various functions that a user can be allowed to use.
+
+    print("\n\n====================================================")
+    print("----------------------")
+    print("|     BANK CLI       |")
+    print("----------------------")
+    print("Please select an option:")
+    print("0. Exit the program")
+    print("1. Create a New Bank")
+    print("2. List all Accredited Banks")
+    print("3. Find Bank by Name")
+    print("4. Find Bank by ID")
+    print("5. List all Customers in a Bank")
+    print("6. List all Loans in a Bank")
+    print("7. Update Bank details")
+    print("8. Delete Bank")
+ 
+    
+    print("----------------------")
+    print("|  CUSTOMER CLI      |")
+    print("----------------------")   
+    print("9. Create a New Customer")
+    print("10. List all Approved Customers")
+    print("11. Find Customer by Name")
+    print("12. Find Customer by ID")
+    print("13. List all Banks a Customer has a borrowed a Loan")
+    print("14. List all Loans belonging to a Customer")
+    print("15. List total Loan amount in a Bank")
+    print("16. List cumulative total in Loans")
+    print("17. Update Customer details")
+    print("18. Delete Customer")
+    print("19. Register New Loan")
+    print("20. Settle Loan")     
+    print("====================================================\n\n")
+
+
+## Set up and How to Run
+
+1. Download the git folder and run debug.py to load seed data into the database
+
+2. Ensure you are in a python environment. Install any additional dependencies you know you'll need for your project by adding them to the Pipfile. Then run the commands:
+    `pipenv install`
+    `pipenv shell`
+
+3. Run the main.py file using `python 3 main.py`
+4. Execute the various functions using the CRB Menu provided

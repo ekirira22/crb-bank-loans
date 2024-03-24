@@ -156,7 +156,7 @@ def all_customer_loans():
 # Returns loans in a Bank instance
 def total_customer_bank_loans():
     id_ = int(input("Enter Customer's ID\n> "))
-    bank_id_ = int(input("Enter Customer's ID\n> "))
+    bank_id_ = int(input("Enter Bank's ID\n> "))
     if customer := Customer.find_by_id(id_):       
         print(customer.bank_loan_total(Bank.find_by_id(bank_id_)))
     else:
@@ -194,6 +194,8 @@ def update_customer():
     else:
         print(f"Customer with Customer ID: {id_} not found")
 
+
+# Deletes a customer and all their associated loans
 def delete_customer():
     id_ = int(input("Enter the ID of Customer to delete:\n> "))
     if customer := Customer.find_by_id(id_):
@@ -205,7 +207,9 @@ def delete_customer():
     else:
         print(f'Customer with ID: {id_} not found')
 
-def take_loan():
+
+# Registers a customer for a Loan
+def register_loan():
     id_ = int(input("Enter the ID of Customer to Register Loan:\n> "))
     bank_id_ = int(input("Enter the ID of Bank to Register Loan:\n> "))
     loan_type = input("Enter the Loan Type Category:\n> ")
@@ -220,6 +224,17 @@ def take_loan():
     else:
         print(f'Customer with ID: {id_} not found')
 
-def settle_loan():
-    pass
 
+# Settles Loan for a customer. Credits the excess to customer account
+def settle_loan():
+    id_ = int(input("Enter the ID of Customer to Settle Loan:\n> "))
+    bank_id_ = int(input("Enter the ID of Bank to Settle Loan:\n> "))
+    loan_type = input("Enter the Loan Type Category:\n> ")
+    loan_amount = int(input("Enter the Loan Amount in KES:\n> "))
+    if customer := Customer.find_by_id(id_):
+        try:
+            customer.pay_loan(loan_type, Bank.find_by_id(bank_id_), loan_amount)
+        except Exception as exc:
+            print("Error Settling Loan. Check Bank ID or Cust ID >> ", exc)
+    else:
+        print(f'Customer with ID: {id_} not found')

@@ -86,7 +86,7 @@ class Loan:
 
                 return new_loan
             else:
-                print(f"Loan limit exceeded. {customer.loan_total()} \n KES {loan_amount} borrowed while limit is KES {customer.loan_limit}.\n Pay to increase Loan Limit")
+                print(f"Loan limit exceeded. Current Loan: KES {customer.loan_total()} \nKES {loan_amount} borrowed while limit is KES {customer.loan_limit}.\nPay to increase Loan Limit")
                 return
         raise TypeError("bank and customer arguments have to be of class Bank and Customer respectively")
     
