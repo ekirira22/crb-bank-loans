@@ -158,26 +158,11 @@ class Bank:
     """
         ORM ASSOCIATION METHODS
     """
-    # Returns a list of customers with a loan with the current bank
-    def customers(self):
-        from models.loans import Loan
-        from models.customers import Customer
-
-        customer_ids =  [val.customer_id for key, val in Loan.all.items() if val.bank_id is self.id]
-        return [Customer.find_by_id(customer_id) for customer_id in customer_ids] if customer_ids else print("No customers with Loans")
-    
-    def loans(self):
-        from models.loans import Loan        
-        loans_ids = [val.id for key, val in Loan.all.items() if val.bank_id is self.id]
-        return [Loan.find_by_id(loan_id) for loan_id in loans_ids] if loans_ids else print("No disbursed Loans available")
-    
     def offer_loan(self, loan_type, loan_amount, customer):
         from models.loans import Loan
         from models.customers import Customer
+        pass
         
-        if not isinstance(customer, Customer):
-            raise TypeError("customer argument must be of type Customer")
-        Loan.create(loan_type, loan_amount, self, customer)
     
     def pay_loan(self, loan_type, customer, amount):
         from models.customers import Customer

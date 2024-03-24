@@ -27,7 +27,7 @@ class Customer:
     
     @first_name.setter
     def first_name(self, first_name):
-        if isinstance(first_name, str) and len(first_name) > 1:
+        if isinstance(first_name, str) and len(first_name) > 0:
             self._first_name = first_name
             return
         raise TypeError("Customer first name has to be a string and cannot be empty")
@@ -38,7 +38,7 @@ class Customer:
     
     @last_name.setter
     def last_name(self, last_name):
-        if isinstance(last_name, str) and len(last_name) > 1:
+        if isinstance(last_name, str) and len(last_name) > 0:
             self._last_name = last_name
             return
         raise TypeError("Customer last name has to be a string and cannot be empty")
@@ -193,25 +193,27 @@ class Customer:
     """
         ORM ASSOCIATION METHODS
     """
+
     # Returns a list of banks a customer has borrowed a loan from
     def banks(self):
-        from models.loans import Loan
         from models.banks import Bank
+        from models.loans import Loan
+        bank_ids =  [val.bank_id for val in Loan.get_all() if val.customer_id is self.id]
+        return set([Bank.find_by_id(bank_id) for bank_id in bank_ids]) if bank_ids else print("No Bank with Loan")
 
-        bank_ids =  [val.bank_id for key, val in Loan.all.items() if val.customer_id is self.id]
-        return list(set([Bank.find_by_id(bank_id) for bank_id in bank_ids])) if bank_ids else print("No Bank with Loan")
-    
     # Returns a list of loans of the user's instance
     def loans(self):
-        from models.loans import Loan        
-        loans_ids = [val.id for key, val in Loan.all.items() if val.customer_id is self.id]
+        from models.loans import Loan
+        loans_ids = [val.id for val in Loan.get_all() if val.customer_id is self.id]
         return [Loan.find_by_id(loan_id) for loan_id in loans_ids] if loans_ids else print("No Existing Loans")
     
+
     # Returns the total loan of a user
     def loan_total(self):
         # Returns total of loan
-        return sum([loan.loan_amount for loan in self.loans() if loan.customer_id is self.id])
+        return sum([loan.loan_amount for loan in self.loans() if loan.customer_id is self.id]) if isinstance(self.loans(), list) else 0
     
+
     # Returns the loan total a user has in a specific bank
     def bank_loan_total(self, bank):
         from models.banks import Bank
@@ -221,6 +223,7 @@ class Customer:
             return f"{self.first_name}'s outstanding Loan balance in {bank.name} is: KES {sum([loan.loan_amount for loan in self.loans() if loan.customer_id is self.id and loan.bank_id is bank.id])}"
         raise TypeError("Argument passed must an instance of Bank class")
     
+
     # Customer Pays Loan Function
     def pay_loan(self, loan_type, bank, amount):
         from models.loans import Loan
@@ -243,6 +246,7 @@ class Customer:
         self.loan_limit += amount + limit_bonus()
         self.update()
 
+
     def all_loans_details(self):
         from models.banks import Bank
         for loan in self.loans():
@@ -253,6 +257,7 @@ class Customer:
 def validate_email(email):
     pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     return re.match(pattern, email) is not None
+
 
 # get random loan limit bonus
 def limit_bonus():

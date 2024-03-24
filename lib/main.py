@@ -1,22 +1,6 @@
 # lib/main.py
 #! /usr/bin/env python3
-from helpers import (
-    exit_program,
-    create_bank,
-    get_all_banks,
-    find_bank_by_name,
-    find_bank_by_id,
-    all_bank_customers,
-    all_bank_loans,
-    update_bank_details,
-    delete_bank,
-    create_customer,
-    get_all_customers,
-    find_customer_by_name,
-    find_customer_by_id,
-    all_customer_loans,
-    loan_total
-)
+from helpers import *
 
 
 def main():
@@ -41,18 +25,30 @@ def main():
             update_bank_details()
         elif choice == "8":
             delete_bank()
-        elif choice == "11":
+        elif choice == "9":
             create_customer()
-        elif choice == "12":
+        elif choice == "10":
             get_all_customers()
-        elif choice == "13":
+        elif choice == "11":
             find_customer_by_name()
-        elif choice == "14":
+        elif choice == "12":
             find_customer_by_id()
-        elif choice == "15":
+        elif choice == "13":
+            all_customer_banks()
+        elif choice == "14":
             all_customer_loans()
-        elif choice == "18":
+        elif choice == "15":
+            total_customer_bank_loans()
+        elif choice == "16":
             loan_total()
+        elif choice == "17":
+            update_customer()
+        elif choice == "18":
+            delete_customer()
+        elif choice == "19":
+            take_loan()
+        elif choice == "20":
+            settle_loan()
         else:
             print("Invalid choice")
 
@@ -72,27 +68,23 @@ def menu():
     print("6. List all Loans in a Bank")
     print("7. Update Bank details")
     print("8. Delete Bank")
-    print("9. Offer Loan to a Customer")
-    print("10. Clear Loan for a Customer")
-
-
+ 
     
     print("----------------------")
     print("|  CUSTOMER CLI      |")
     print("----------------------")   
-    print("11. Create a New Customer")
-    print("12. List all Approved Customers")
-    print("13. Find Customer by Name")
-    print("14. Find Customer by ID")
-    print("15. List all Banks a Customer has a borrowed a Loan")
-    print("16. List all Loans belonging to a Customer")
-    print("17. List all Loans a Customer has in a Bank")
-    print("18. List total amount of Loans")
-    print("19. List total amount of Loans in a Bank")
-    print("20. Update Customer details")
-    print("21. Delete Customer")
-    print("22. Take New Loan")
-    print("23. Settle Loan")     
+    print("9. Create a New Customer")
+    print("10. List all Approved Customers")
+    print("11. Find Customer by Name")
+    print("12. Find Customer by ID")
+    print("13. List all Banks a Customer has a borrowed a Loan")
+    print("14. List all Loans belonging to a Customer")
+    print("15. List total Loan amount in a Bank")
+    print("16. List cumulative total in Loans")
+    print("17. Update Customer details")
+    print("18. Delete Customer")
+    print("19. Register New Loan")
+    print("20. Settle Loan")     
     print("====================================================\n\n")
 
 
